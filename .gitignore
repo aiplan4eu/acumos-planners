@@ -1,0 +1,12 @@
+*~
+*.o
+planner_client
+planner_ROSPlan_bridge
+*.grpc.pb.h
+*.pb.h
+*.grpc.pb.cc
+*.pb.cc
+._*
+.DS_Store
+planner_ACUMOS_bridge
+

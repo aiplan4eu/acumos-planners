@@ -1,0 +1,12 @@
+== Documentation for ROSPlan ACUMOS bridge examples.
+
+:imagesdir: fig
+
+This project contains a number of C++ examples on how to connect ROSPlan nodes (using .msg, topics, publish/subscribe) and
+ACUMOS components (using ProtoBuf and gRPC client/server).
+
+Enjoy!
+
+
+
+
