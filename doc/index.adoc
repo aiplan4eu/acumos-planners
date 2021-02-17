@@ -2,7 +2,7 @@
 
 :imagesdir: fig
 
-This project contains an ACUMOS component which is able to call a number of PDD action planners (ff, popf and optic for now).
+This project contains an ACUMOS component which is able to call a number of PDD action planners (`ff`, `popf` and `optic` for now).
 
 Each of these planner need to be installed separately and avilable in your PATH.
 
