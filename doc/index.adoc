@@ -1,9 +1,10 @@
-== Documentation for ROSPlan ACUMOS bridge examples.
+== Documentation for an ACUMOS PDDL Action Planner component.
 
 :imagesdir: fig
 
-This project contains a number of C++ examples on how to connect ROSPlan nodes (using .msg, topics, publish/subscribe) and
-ACUMOS components (using ProtoBuf and gRPC client/server).
+This project contains an ACUMOS component which is able to call a number of PDD action planners (ff, popf and optic for now).
+
+Each of these planner need to be installed separately and avilable in your PATH.
 
 Enjoy!
 
