@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
   PlannerClient planner(grpc::CreateChannel(
       target_str, grpc::InsecureChannelCredentials()));
 
-  if (argc != 5) {
+  if (argc < 4) {
     std::cout << "We need which planner ff, optic or popf, and 3 filenames as arguments, domain, problem and parameters" << std::endl;
     return 1;
   }
@@ -160,11 +160,11 @@ int main(int argc, char** argv) {
   std::string problem((std::istreambuf_iterator<char>(problemStream)),
 		      std::istreambuf_iterator<char>());
 
-  std::ifstream paramsStream(argv[4]);
-  std::string parameters ((std::istreambuf_iterator<char>(paramsStream)),
-			  std::istreambuf_iterator<char>());
-  std::string res;
-       
+  std::string parameters, res; 
+
+  if (argc == 5)
+    parameters= argv[4];
+  
   if (!strcmp(argv[1],"ff")) {
     res = planner.planner_ff(domain, problem, parameters);
    } else if (!strcmp(argv[1],"popf")) {

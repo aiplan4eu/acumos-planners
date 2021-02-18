@@ -16,6 +16,7 @@
  *
  */
 
+#include <stdio.h>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -51,10 +52,22 @@ class PlannerServiceImpl final : public Planner::Service {
     out_fact << request->problem();
     out_fact.close();
 
-    char *command = (char *)"ff -p /tmp/ -o domain -f problem > /tmp/solution";
+    char *command_fmt = (char *)"ff -p /tmp/ -o domain -f problem %s > /tmp/solution";
 
+    char *command;
+
+    int ret = asprintf(&command, command_fmt, request->parameters().c_str());
+        
+    if (ret == -1) {
+      std::cout << "Cannot build command for the planner. " << std::endl;
+      return Status::CANCELLED;
+    }
+
+    std::cout << "Calling: "<< command << std::endl;
     
-    int ret = system(command);
+    ret = system(command);
+    
+    free(command);
     
     if ( !ret ) {
       reply->set_success(true);
@@ -91,11 +104,23 @@ class PlannerServiceImpl final : public Planner::Service {
     out_fact << request->problem();
     out_fact.close();
 
-    char *command = (char *)"popf /tmp/domain /tmp/problem > /tmp/solution";
+    char *command_fmt = (char *)"popf %s /tmp/domain /tmp/problem > /tmp/solution";
 
+    char *command;
+
+    int ret = asprintf(&command, command_fmt, request->parameters().c_str());
+        
+    if (ret == -1) {
+      std::cout << "Cannot build command for the planner. " << std::endl;
+      return Status::CANCELLED;
+    }
+
+    std::cout << "Calling: "<< command << std::endl;
     
-    int ret = system(command);
+    ret = system(command);
     
+    free(command);
+
     if ( !ret ) {
       reply->set_success(true);
       
@@ -132,11 +157,23 @@ class PlannerServiceImpl final : public Planner::Service {
     out_fact << request->problem();
     out_fact.close();
 
-    char *command = (char *)"optic-clp -N /tmp/domain /tmp/problem > /tmp/solution";
+    char *command_fmt = (char *)"optic-clp %s /tmp/domain /tmp/problem > /tmp/solution";
 
+    char *command;
+
+    int ret = asprintf(&command, command_fmt, request->parameters().c_str());
+        
+    if (ret == -1) {
+      std::cout << "Cannot build command for the planner. " << std::endl;
+      return Status::CANCELLED;
+    }
+
+    std::cout << "Calling: "<< command << std::endl;
     
-    int ret = system(command);
+    ret = system(command);
     
+    free(command);
+
     if ( !ret ) {
       reply->set_success(true);
       
