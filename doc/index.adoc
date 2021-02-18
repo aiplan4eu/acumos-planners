@@ -21,7 +21,7 @@ First clone this package
 git clone git://redmine.laas.fr/laas/users/felix/acumos-planners.git
 ----
 
-Make sure you have `Protobuf` and gRPC installed first, or the Mafefile will fail. In fact the `Makefile` checks their presence with `pkg-config`
+Make sure you have ProtoBuf and gRPC installed first, or the make will fail. In fact the `Makefile` checks their presence with `pkg-config`
 
 
 WARNING: Beware of inconsistent ProtoBuf/gRPC versions. I strongly advise you to install gRPC following the instruction
