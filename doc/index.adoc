@@ -30,6 +30,11 @@ cd acumos-planners
 make
 ----
 
+This will create two executable:
+- `planner_ACUMOS_bridge` is a gRPC server listening on port 8061 providing the services described below in the ProtoBuf file (to be able to call 3 different planners for now).
+- `planner_client` is just an example of a client requesting a plan from the gRPC server. Of coure, in a regular setup, that would be another component or the `orchestrator`.
+
+
 Again, check you have `ff`, `popf` and `optic-clp` installed in your path. Just call them one by one should suffice.
 
 === Run
@@ -44,7 +49,7 @@ In another terminal, you can launch the client with the following syntax:
 
 `./planner_client <popf|optic|ff> domain_file problem_file "argument"`
 
-NOTE: the `"argument"` is passed to the planner (so it depends of the planner used) and should be given in ONE string. (e.g. if you want to pass the arguments `-a -c efg -X` to the planner, use:  "-a -c efg -X")
+NOTE: the `"argument"` is passed to the planner (so it depends of the planner used) and should be given in ONE string. (e.g. if you want to pass the arguments `-a -c efg -X` to the planner, use:  `"-a -c efg -X"`)
 
 Here are some examples which should work.
 ----
@@ -80,19 +85,16 @@ package AIPlanner;
 
 // The Planner service definition.
 service Planner {		//we can have more than one planner available
-  rpc planner_ff (PlanRequest)
-    returns (PlanReply) {}
-  rpc planner_optic (PlanRequest)
-    returns (PlanReply) {}
-  rpc planner_popf (PlanRequest)
-    returns (PlanReply) {}
+  rpc planner_ff (PlanRequest)e returns (PlanReply);
+  rpc planner_optic (PlanRequest) returns (PlanReply);
+  rpc planner_popf (PlanRequest) returns (PlanReply);
 }
 
 // The request message containing three strings, the domain, the problem and the parameters
 message PlanRequest {
   string domain = 1; 		// Planing domain in PDDL
   string problem = 2;		// Planning problem in PDDL
-  string parameters = 3;	// parameter added to the commande line
+  string parameters = 3;	        // parameter added to the commande line
 }
 
 // The response message containing the plan (if suceess is true)
