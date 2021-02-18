@@ -4,7 +4,7 @@
 
 This project contains an ACUMOS component which, acting as a gRPC server, is able to call a number of PDDL action planners (`ff`, `popf` and `optic` for now).
 
-Each of these planner need to be installed separately and have to be available in your PATH.
+Each of these planners needs to be installed separately and have to be available in your PATH.
 
 - `ff` is pretty straighforward to install https://fai.cs.uni-saarland.de/hoffmann/ff.html[FF homepage]
 - `popf`, I would not know, I grabbed the binary from the ROSPlan distribution (bad bad...), but here is the https://nms.kcl.ac.uk/planning/software/popf.html[POPF homepage]
@@ -21,7 +21,12 @@ First clone this package
 git clone git://redmine.laas.fr/laas/users/felix/acumos-planners.git
 ----
 
-Make sure you have `protopuf` and `gRPC` installed first, or the Mafefile will fail. In fact the `Makefile` checks their presence with `pkg-config`
+Make sure you have `Protobuf` and gRPC installed first, or the Mafefile will fail. In fact the `Makefile` checks their presence with `pkg-config`
+
+
+WARNING: Beware of inconsistent ProtoBuf/gRPC versions. I strongly advise you to install gRPC following the instruction
+on: https://grpc.io/docs/languages/cpp/quickstart/ This will install gRPC *and* ProtoBuf, minimizing the risk of version
+inconsistency.
 
 === Compile
 
@@ -30,7 +35,7 @@ cd acumos-planners
 make
 ----
 
-This will create two executables:
+This will create two executables in the same directory:
 
 - `planner_ACUMOS_bridge` is a gRPC server listening on port 8061 providing the services described below in the ProtoBuf
   file (to be able to call 3 different planners for now). 
@@ -52,21 +57,21 @@ In another terminal, you can launch the client with the following syntax:
 
 `./planner_client <popf|optic|ff> domain_file problem_file "argument"`
 
-NOTE: the `"argument"` is passed to the planner (so it depends of the planner used) and should be given in ONE
+NOTE: the `"argument"` is optional and is passed to the planner (so it depends of the planner used) and should be given in ONE
 string. (e.g. if you want to pass the arguments `-a -c efg -X` to the planner, use:  `"-a -c efg -X"`) 
 
-Here are some examples which should work.
+Here are some examples from the `examples` subdirectory which should work.
 ----
 ./planner_client popf examples/domain_turtlebot.pddl examples/problem_turtlebot.pddl
 ./planner_client ff examples/dom3.pddl  examples/pb3a.pddl
 ./planner_client optic  examples/dom3d.pddl  examples/pb3a.pddl "-N"
 ----
 
-The `"-N"` is most welcome when calling `optic` as it may use a lof of CPU before deciding it cannot improve the solution anymore.
+The `"-N"` argument is most welcome when calling `optic` as it may use a lof of CPU before deciding it cannot improve the solution anymore.
 
 === The ProtoBuf definition
 
-Here is the content of the ProtoBuf file `PDDL-planner.proto`
+Here is the content of the ProtoBuf file `PDDL-planner.proto`, nothing too fancy, mostly strings for now.
 ----
 syntax = "proto3";
 
@@ -81,9 +86,9 @@ service Planner {		//we can have more than one planner available
 
 // The request message containing three strings, the domain, the problem and the parameters
 message PlanRequest {
-  string domain = 1; 		// Planing domain in PDDL
-  string problem = 2;		// Planning problem in PDDL
-  string parameters = 3;	        // parameter added to the commande line
+  string domain = 1; 		// planing domain in PDDL
+  string problem = 2;		// planning problem in PDDL
+  string parameters = 3;	// parameter added to the commande line
 }
 
 // The response message containing the plan (if suceess is true)
@@ -93,8 +98,7 @@ message PlanReply {
 }
 ----
 
-As you can see, nothting fancy for now...
-
+As you can see, pretty straightforward.
 
 === Next
 
@@ -105,7 +109,3 @@ Find some partners who want an action planner in their hybrid pipeline.
 === Comments, bugs and suggestions are welcome!
 
 Enjoy!
-
-
-
-
