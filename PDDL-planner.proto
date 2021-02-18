@@ -19,16 +19,19 @@ package AIPlanner;
 
 // The Planner service definition.
 service Planner {		//we can have more than one planner available
-  rpc planner_ff (PlanRequest) returns (PlanReply) {}
-  rpc planner_optic (PlanRequest) returns (PlanReply) {}
-  rpc planner_popf (PlanRequest) returns (PlanReply) {}
+  rpc planner_ff (PlanRequest)
+    returns (PlanReply) {}
+  rpc planner_optic (PlanRequest)
+    returns (PlanReply) {}
+  rpc planner_popf (PlanRequest)
+    returns (PlanReply) {}
 }
 
 // The request message containing three strings, the domain, the problem and the parameters
 message PlanRequest {
-  string domain = 1;
-  string problem = 2;
-  string parameters = 3;
+  string domain = 1; 		// Planing domain in PDDL
+  string problem = 2;		// Planning problem in PDDL
+  string parameters = 3;	// parameter added to the commande line
 }
 
 // The response message containing the plan (if suceess is true)

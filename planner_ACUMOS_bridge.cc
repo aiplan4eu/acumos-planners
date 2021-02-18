@@ -51,7 +51,7 @@ class PlannerServiceImpl final : public Planner::Service {
     out_fact << request->problem();
     out_fact.close();
 
-    char *command = (char *)"ff -p /tmp/ -o domain -f problem";
+    char *command = (char *)"ff -p /tmp/ -o domain -f problem > /tmp/solution";
 
     
     int ret = system(command);
@@ -59,12 +59,12 @@ class PlannerServiceImpl final : public Planner::Service {
     if ( !ret ) {
       reply->set_success(true);
       
-      std::ifstream plan_res("problem.soln");
+      std::ifstream plan_res("/tmp/solution");
       std::string plan_string((std::istreambuf_iterator<char>(plan_res)),
 			      std::istreambuf_iterator<char>());
       plan_res.close();
       
-      std::remove("problem.soln");
+      std::remove("/tmp/solution");
       std::remove("/tmp/domain");
       std::remove("/tmp/problem");
       
@@ -120,16 +120,48 @@ class PlannerServiceImpl final : public Planner::Service {
   
   Status planner_optic(ServerContext* context, const PlanRequest* request,
                   PlanReply* reply) override {
-    reply->set_success(false);
-    reply->set_plan("not implemented yet");
 
+    std::cout << "gRPC server got: " <<  request->domain() << " and " << request->problem() << " and " << request->parameters() << std::endl;
+
+    std::ofstream out_domain("/tmp/domain");
+    out_domain << request->domain();
+    out_domain.close();
+
+    
+    std::ofstream out_fact("/tmp/problem");
+    out_fact << request->problem();
+    out_fact.close();
+
+    char *command = (char *)"optic-clp -N /tmp/domain /tmp/problem > /tmp/solution";
+
+    
+    int ret = system(command);
+    
+    if ( !ret ) {
+      reply->set_success(true);
+      
+      std::ifstream plan_res("/tmp/solution");
+      std::string plan_string((std::istreambuf_iterator<char>(plan_res)),
+			      std::istreambuf_iterator<char>());
+      plan_res.close();
+
+      std::remove("/tmp/domain");
+      std::remove("/tmp/problem");
+      std::remove("/tmp/solution");
+      
+      reply->set_plan(plan_string);
+      
+    } else {
+      reply->set_success(false);
+      reply->set_plan("no plan");
+      
+    }
     return Status::OK;
   }
 
 };
 
 int main(int argc, char** argv) {
-
 
   std::string server_address("0.0.0.0:8061");
   PlannerServiceImpl service;
