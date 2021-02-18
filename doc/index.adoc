@@ -2,9 +2,116 @@
 
 :imagesdir: fig
 
-This project contains an ACUMOS component which is able to call a number of PDDL action planners (`ff`, `popf` and `optic` for now).
+This project contains an ACUMOS component which, acting as a gRPC server, is able to call a number of PDDL action planners (`ff`, `popf` and `optic` for now).
 
-Each of these planner need to be installed separately and available in your PATH.
+Each of these planner need to be installed separately and have to be available in your PATH.
+
+- `ff` is pretty straighforward to install https://fai.cs.uni-saarland.de/hoffmann/ff.html[FF homepage]
+- `popf`, I would not know, I grabbed the binary from the ROSPlan distribution (bad bad...), but here is the https://nms.kcl.ac.uk/planning/software/popf.html[POPF homepage]
+- `optic` is a pain to install... Check https://nms.kcl.ac.uk/planning/software/optic.html[OPTIC homepage], you may find the proper binary for you...
+
+
+NOTE: For now, the `optic` binary should be named `optic-clp` (I do not have a `cplex` licence) 
+
+=== Install 
+
+First clone this package
+
+----
+git clone git://redmine.laas.fr/laas/users/felix/acumos-planners.git
+----
+
+Make sure you have `protopuf` and `gRPC` installed first, or the Mafefile will fail. IN fact the makefile check that their presence with `pkg-config`
+
+=== Compile
+
+----
+cd acumos-planners
+make
+----
+
+Again, check you have `ff`, `popf` and `optic-clp` installed in your path. Just call them one by one should suffice.
+
+=== Run
+
+Open a terminal and launch the gRPC planner bridge:
+
+----
+./planner_ACUMOS_bridge 
+----
+
+In another terminal, you can launch the client with the following syntax:
+
+`./planner_client <popf|optic|ff> domain_file problem_file "argument"`
+
+NOTE: the `"argument"` is passed to the planner (so it depends of the planner used) and should be given in ONE string. (e.g. if you want to pass the arguments `-a -c efg -X` to the planner, use:  "-a -c efg -X")
+
+Here are some examples which should work.
+----
+./planner_client popf examples/domain_turtlebot.pddl examples/problem_turtlebot.pddl
+./planner_client ff examples/dom3.pddl  examples/pb3a.pddl
+./planner_client optic  examples/dom3d.pddl  examples/pb3a.pddl "-N"
+----
+
+The `"-N"` is most welcome when calling `optic` as it may use a lof of CPU before deciding it cannot improve the solution anymore.
+
+=== The ProtoBuf definition
+
+Here is the content of the ProtoBuf file PDDL-planner.proto
+----
+// Copyright 2015 gRPC authors.
+// Copyright 2021 Felix Ingrand (LAAS-CNRS)
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package AIPlanner;
+
+// The Planner service definition.
+service Planner {		//we can have more than one planner available
+  rpc planner_ff (PlanRequest)
+    returns (PlanReply) {}
+  rpc planner_optic (PlanRequest)
+    returns (PlanReply) {}
+  rpc planner_popf (PlanRequest)
+    returns (PlanReply) {}
+}
+
+// The request message containing three strings, the domain, the problem and the parameters
+message PlanRequest {
+  string domain = 1; 		// Planing domain in PDDL
+  string problem = 2;		// Planning problem in PDDL
+  string parameters = 3;	// parameter added to the commande line
+}
+
+// The response message containing the plan (if suceess is true)
+message PlanReply {
+  bool success = 1;
+  string plan = 2;
+}
+----
+
+As you can see, nothting fancy for now...
+
+
+=== Next
+
+Dockerize the whole thing...
+
+Find some partners who want an action planner in their hybrid pipeline.
+
+=== Comments, bugs and suggestions are welcome!
 
 Enjoy!
 
