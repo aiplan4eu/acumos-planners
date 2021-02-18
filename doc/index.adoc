@@ -21,7 +21,7 @@ First clone this package
 git clone git://redmine.laas.fr/laas/users/felix/acumos-planners.git
 ----
 
-Make sure you have `protopuf` and `gRPC` installed first, or the Mafefile will fail. IN fact the makefile check that their presence with `pkg-config`
+Make sure you have `protopuf` and `gRPC` installed first, or the Mafefile will fail. In fact the `Makefile` checks their presence with `pkg-config`
 
 === Compile
 
@@ -30,9 +30,12 @@ cd acumos-planners
 make
 ----
 
-This will create two executable:
-- `planner_ACUMOS_bridge` is a gRPC server listening on port 8061 providing the services described below in the ProtoBuf file (to be able to call 3 different planners for now).
-- `planner_client` is just an example of a client requesting a plan from the gRPC server. Of coure, in a regular setup, that would be another component or the `orchestrator`.
+This will create two executables:
+
+- `planner_ACUMOS_bridge` is a gRPC server listening on port 8061 providing the services described below in the ProtoBuf
+  file (to be able to call 3 different planners for now). 
+- `planner_client` is just an example of a client requesting a plan from the gRPC server. Of course, in a regular setup,
+  that would be another ACUMOS component or the `orchestrator`.   
 
 
 Again, check you have `ff`, `popf` and `optic-clp` installed in your path. Just call them one by one should suffice.
@@ -42,14 +45,15 @@ Again, check you have `ff`, `popf` and `optic-clp` installed in your path. Just 
 Open a terminal and launch the gRPC planner bridge:
 
 ----
-./planner_ACUMOS_bridge 
+./planner_ACUMOS_bridge
 ----
 
 In another terminal, you can launch the client with the following syntax:
 
 `./planner_client <popf|optic|ff> domain_file problem_file "argument"`
 
-NOTE: the `"argument"` is passed to the planner (so it depends of the planner used) and should be given in ONE string. (e.g. if you want to pass the arguments `-a -c efg -X` to the planner, use:  `"-a -c efg -X"`)
+NOTE: the `"argument"` is passed to the planner (so it depends of the planner used) and should be given in ONE
+string. (e.g. if you want to pass the arguments `-a -c efg -X` to the planner, use:  `"-a -c efg -X"`) 
 
 Here are some examples which should work.
 ----
