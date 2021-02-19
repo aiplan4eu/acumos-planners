@@ -103,7 +103,9 @@ As you can see, pretty straightforward.
 
 === Docker version
 
-Now we make a Docker out of this setup. Here is the Dockerfile I use. We have to install coinor-libcbc-dev for optic-clp to run properly. We copy the various planner from the lcoal bin directory, as well as the planner_ACUMOS_bridge. We expose port 8061 to allow ACUMOS to talk to our component.
+Now we make a Docker out of this setup. Here is the Dockerfile I use. We have to install `coinor-libcbc-dev` for `optic-clp` to run
+properly. We copy the various planner from the local `bin` directory, as well as the `planner_ACUMOS_bridge`. We expose port `8061` to allow
+ACUMOS to talk to our component.
 
 ----
 FROM ubuntu:18.04
@@ -136,9 +138,14 @@ then you can call again the client, with something like:
 ./planner_client ff examples/dom3.pddl examples/pb3a.pddl
 ----
 
-and you should get the result computed by the dockerized `planner_ACUMOS_bridge` and `ff`.
+and you should get the result computed by the dockerized `planner_ACUMOS_bridge` and `ff` in this particular case.
 
 Tada....
+
+=== ACUMOS
+
+The container and the ProtoBuff have been upload to ACUMOS and are in a "model" named `pddl-planners-ffi`. If you want to use it in an
+hybrid pipeline, let me know.a
 
 === Next
 
