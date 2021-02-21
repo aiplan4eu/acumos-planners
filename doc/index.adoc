@@ -7,8 +7,10 @@ This project contains an ACUMOS component which, acting as a gRPC server, is abl
 Each of these planners needs to be installed separately and have to be available in your PATH.
 
 - `ff` is pretty straighforward to install https://fai.cs.uni-saarland.de/hoffmann/ff.html[FF homepage]
-- `popf`, I would not know, I grabbed the binary from the ROSPlan distribution (bad bad...), but here is the https://nms.kcl.ac.uk/planning/software/popf.html[POPF homepage]
-- `optic` is a pain to install... Check https://nms.kcl.ac.uk/planning/software/optic.html[OPTIC homepage], you may find the proper binary for you...
+- `popf`, I would not know, I grabbed the binary from the ROSPlan distribution (bad bad...), but here is the
+  https://nms.kcl.ac.uk/planning/software/popf.html[POPF homepage] 
+- `optic` is a pain to install... Check https://nms.kcl.ac.uk/planning/software/optic.html[OPTIC homepage], you may find the proper binary
+  for you... 
 
 
 NOTE: For now, the `optic` binary should be named `optic-clp` (I do not have a `cplex` licence) 
@@ -145,11 +147,15 @@ Tada....
 === ACUMOS
 
 The container and the ProtoBuff have been upload to ACUMOS and are in a "model" named `pddl-planners-ffi`. If you want to use it in an
-hybrid pipeline, let me know.a
+hybrid pipeline, let me know.
 
 === Next
 
-Find some partners who want an action planner in their hybrid pipeline.
+- Find some partners who want an action planner in their hybrid pipeline.
+- want more planners? metric-ff, conforment-ff, etc?
+- Improve the returned status (success, timeout, error,?) ACUMOS does not support enum for now...
+- more pardsing of the returned format (for now, we just get the stdout).
+
 
 === Comments, bugs and suggestions are welcome!
 
