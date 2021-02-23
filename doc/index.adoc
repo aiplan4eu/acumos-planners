@@ -49,11 +49,11 @@ This will create two executables in the same directory:
 
 
 Again, check you have `ff`, `popf` and `optic-clp` installed in your path. Just call them one by one should suffice. If they are not
-installed, you can also start <<_docker_version>>, which contains them all.
+installed, you can also start <<Docker_version>>, which contains them all.
 
 === Run
 
-If you do not want to run the server locally, skip this step and start <<_docker_version>>.
+If you do not want to run the server locally, skip this step and start <<Docker_version>>.
 
 Open a terminal and launch the gRPC planner bridge:
 
@@ -110,8 +110,8 @@ message PlanReply {
 
 As you can see, pretty straightforward.
 
-
-=== Docker version
+[[Docker_version]]
+=== Docker version 
 
 Now we make a Docker out of this setup. Here is the Dockerfile I use. We have to install `coinor-libcbc-dev` for `optic-clp` to run
 properly. We copy the various planner from the local `bin` directory, as well as the `planner_ACUMOS_bridge`. We expose port `8061` to allow
