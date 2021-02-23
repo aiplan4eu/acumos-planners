@@ -23,7 +23,9 @@ First clone this package
 git clone git://redmine.laas.fr/laas/users/felix/acumos-planners.git
 ----
 
-Make sure you have ProtoBuf and gRPC installed first, or the make will fail. In fact the `Makefile` checks their presence with `pkg-config`
+The prerequisites to install this component are the usual developper one. gcc, make, pkg-config.
+
+Moreover, make sure you have ProtoBuf and gRPC installed first, or the make will fail. In fact the `Makefile` checks their presence with `pkg-config`
 
 
 WARNING: Beware of inconsistent ProtoBuf/gRPC versions. I strongly advise you to install gRPC following the instruction
@@ -42,12 +44,16 @@ This will create two executables in the same directory:
 - `planner_ACUMOS_bridge` is a gRPC server listening on port 8061 providing the services described below in the ProtoBuf
   file (to be able to call 3 different planners for now). 
 - `planner_client` is just an example of a client requesting a plan from the gRPC server. Of course, in a regular setup,
-  that would be another ACUMOS component or the `orchestrator`.   
+  that would be another ACUMOS component or the `orchestrator`. A python version of the client is available in the `python_client` sub
+  directory. Of course, it requires the installation of thepython version of gRPC (see https://grpc.io/docs/languages/python/quickstart/)
 
 
-Again, check you have `ff`, `popf` and `optic-clp` installed in your path. Just call them one by one should suffice.
+Again, check you have `ff`, `popf` and `optic-clp` installed in your path. Just call them one by one should suffice. If they are not
+installed, you can also start <<_docker_version>>, which contains them all.
 
 === Run
+
+If you do not want to run the server locally, skip this step and start <<_docker_version>>.
 
 Open a terminal and launch the gRPC planner bridge:
 
@@ -61,6 +67,8 @@ In another terminal, you can launch the client with the following syntax:
 
 NOTE: the `"argument"` is optional and is passed to the planner (so it depends of the planner used) and should be given in ONE
 string. (e.g. if you want to pass the arguments `-a -c efg -X` to the planner, use:  `"-a -c efg -X"`) 
+
+NOTE: that the client does not care if the server is running locally as a standalone program or running inside the container you may have laucnhed.
 
 Here are some examples from the `examples` subdirectory which should work.
 ----
