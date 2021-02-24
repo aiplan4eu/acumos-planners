@@ -1,10 +1,15 @@
 == Documentation for an ACUMOS PDDL Action Planner component.
+Felix Ingrand <felix@laas.fr>
 
 :imagesdir: fig
 
-This project contains an ACUMOS component which, acting as a gRPC server, is able to call a number of PDDL action planners (`ff`, `popf` and `optic` for now).
+This project contains an ACUMOS component which, acting as a gRPC server, is able to call a number of PDDL action planners (`ff`, `popf` and
+`optic` for now).
 
-Each of these planners needs to be installed separately and have to be available in your PATH.
+If you want to run the server locally, each of these planners needs to be installed separately and have to be available in your
+PATH. Otherwise, you can use the Dockerize version (see <<Docker_version>> on this page), still you will need the client.
+
+The supported planners for now are:
 
 - `ff` is pretty straighforward to install https://fai.cs.uni-saarland.de/hoffmann/ff.html[FF homepage]
 - `popf`, I would not know, I grabbed the binary from the ROSPlan distribution (bad bad...), but here is the
@@ -13,7 +18,7 @@ Each of these planners needs to be installed separately and have to be available
   for you... 
 
 
-NOTE: For now, the `optic` binary should be named `optic-clp` (I do not have a `cplex` licence) 
+NOTE: If you have installed `optic`, the binary should be named `optic-clp` (I do not have a `cplex` licence) 
 
 === Install 
 
@@ -23,7 +28,8 @@ First clone this package
 git clone git://redmine.laas.fr/laas/users/felix/acumos-planners.git
 ----
 
-The prerequisites to install this component are the usual developper one. gcc, make, pkg-config.
+The prerequisites to install this component are the usual developper one. `gcc, make, pkg-config, etc`. If you want to use the docker version, you
+will have to install `docker` too.
 
 Moreover, make sure you have ProtoBuf and gRPC installed first, or the make will fail. In fact the `Makefile` checks their presence with `pkg-config`
 
@@ -48,18 +54,29 @@ This will create two executables in the same directory:
   directory. Of course, it requires the installation of thepython version of gRPC (see https://grpc.io/docs/languages/python/quickstart/)
 
 
-Again, check you have `ff`, `popf` and `optic-clp` installed in your path. Just call them one by one should suffice. If they are not
-installed, you can also start <<Docker_version>>, which contains them all.
+Again, if you want to run the `planner_ACUMOS_bridge` locally, check that you have `ff`, `popf` and `optic-clp` installed in your path. Just
+call them one by one should suffice. Otherwise, you can also start the <<Docker_version>>, which contains them all.
 
 === Run
 
-If you do not want to run the server locally, skip this step and start <<Docker_version>>.
+==== The server
 
-Open a terminal and launch the gRPC planner bridge:
+Open a terminal and either launch the gRPC planner bridge:
 
 ----
 ./planner_ACUMOS_bridge
 ----
+
+or, use the  <<Docker_version>>
+
+----
+docker run -d -p 8061:8061 felixfi/pddl-planners
+----
+
+NOTE: To see the "output" of your docker, use `docker logs` or remove the `-d` 
+
+[[client]]
+==== The client
 
 In another terminal, you can launch the client with the following syntax:
 
@@ -113,8 +130,8 @@ As you can see, pretty straightforward.
 [[Docker_version]]
 === Docker version 
 
-Now we make a Docker out of this setup. Here is the Dockerfile I use. We have to install `coinor-libcbc-dev` for `optic-clp` to run
-properly. We copy the various planner from the local `bin` directory, as well as the `planner_ACUMOS_bridge`. We expose port `8061` to allow
+Now we make a Docker out of this setup. Here is the `Dockerfile` I use. We have to install `coinor-libcbc-dev` for `optic-clp` to run
+properly. We copy the various planners from the local `bin` directory, as well as the `planner_ACUMOS_bridge`. We expose port `8061` to allow
 ACUMOS to talk to our component.
 
 ----
@@ -136,21 +153,19 @@ EXPOSE 8061
 ENTRYPOINT ["planner_ACUMOS_bridge"]
 ----
 
-The container is now available on DockerHub, so you will just have to to run it with:
+The container is now available on https://hub.docker.com/repository/docker/felixfi/pddl-planners[dockerhub], so you will just have to to run it with:
 
 ----
 docker run -d -p 8061:8061 felixfi/pddl-planners
 ----
 
-then you can call again the client, with something like:
+then you can call again the <<client,client>>, with something like:
 
 ----
 ./planner_client ff examples/dom3.pddl examples/pb3a.pddl
 ----
 
 and you should get the result computed by the dockerized `planner_ACUMOS_bridge` and `ff` in this particular case.
-
-Tada....
 
 === ACUMOS
 
@@ -162,7 +177,7 @@ hybrid pipeline, let me know.
 - Find some partners who want an action planner in their hybrid pipeline.
 - want more planners? metric-ff, conforment-ff, etc?
 - Improve the returned status (success, timeout, error,?) ACUMOS does not support enum for now...
-- more pardsing of the returned format (for now, we just get the stdout).
+- more parsing of the returned format (for now, we just get the stdout).
 
 
 === Comments, bugs and suggestions are welcome!
