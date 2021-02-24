@@ -18,7 +18,7 @@ The supported planners for now are:
   for you... 
 
 
-NOTE: If you have installed `optic`, the binary should be named `optic-clp` (I do not have a `cplex` licence) 
+NOTE: If you have installed `optic`, the binary should be named `optic-clp` (I do not have a `cplex` license) 
 
 === Install 
 
