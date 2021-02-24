@@ -1,5 +1,5 @@
 == Documentation for an ACUMOS PDDL Action Planner component.
-Felix Ingrand <felix@laas.fr>
+Félix Ingrand <felix@laas.fr>
 
 :imagesdir: fig
 
@@ -51,8 +51,7 @@ This will create two executables in the same directory:
   file (to be able to call 3 different planners for now). 
 - `planner_client` is just an example of a client requesting a plan from the gRPC server. Of course, in a regular setup,
   that would be another ACUMOS component or the `orchestrator`. A python version of the client is available in the `python_client` sub
-  directory. Of course, it requires the installation of thepython version of gRPC (see https://grpc.io/docs/languages/python/quickstart/)
-
+  directory. Of course, it requires the installation of the https://grpc.io/docs/languages/python/quickstart/[gRPC python version].
 
 Again, if you want to run the `planner_ACUMOS_bridge` locally, check that you have `ff`, `popf` and `optic-clp` installed in your path. Just
 call them one by one should suffice. Otherwise, you can also start the <<Docker_version>>, which contains them all.
@@ -85,7 +84,7 @@ In another terminal, you can launch the client with the following syntax:
 NOTE: the `"argument"` is optional and is passed to the planner (so it depends of the planner used) and should be given in ONE
 string. (e.g. if you want to pass the arguments `-a -c efg -X` to the planner, use:  `"-a -c efg -X"`) 
 
-NOTE: that the client does not care if the server is running locally as a standalone program or running inside the container you may have laucnhed.
+NOTE: that the client does not care if the server is running locally, as a standalone program, or running inside the container you may have launched.
 
 Here are some examples from the `examples` subdirectory which should work.
 ----
@@ -103,7 +102,7 @@ Here is the content of the ProtoBuf file `PDDL-planner.proto`, nothing too fancy
 syntax = "proto3";
 
 package AIPlanner;
-
+a
 // The Planner service definition.
 service Planner {		//we can have more than one planner available
   rpc planner_ff (PlanRequest)e returns (PlanReply);
