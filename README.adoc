@@ -51,7 +51,7 @@ This will create two executables in the same directory:
   file (to be able to call 3 different planners for now). 
 - `planner_client` is just an example of a client requesting a plan from the gRPC server. Of course, in a regular setup,
   that would be another ACUMOS component or the `orchestrator`. A python version of the client is available in the `python_client` sub
-  directory. Of course, it requires the installation of the https://grpc.io/docs/languages/python/quickstart/[gRPC python version].
+  directory (thanks to Uwe Köckemann). Of course, it requires the installation of the https://grpc.io/docs/languages/python/quickstart/[gRPC python version].
 
 Again, if you want to run the `planner_ACUMOS_bridge` locally, check that you have `ff`, `popf` and `optic-clp` installed in your path. Just
 call them one by one should suffice. Otherwise, you can also start the <<Docker_version>>, which contains them all.

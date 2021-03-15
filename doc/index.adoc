@@ -102,7 +102,7 @@ Here is the content of the ProtoBuf file `PDDL-planner.proto`, nothing too fancy
 syntax = "proto3";
 
 package AIPlanner;
-a
+
 // The Planner service definition.
 service Planner {		//we can have more than one planner available
   rpc planner_ff (PlanRequest)e returns (PlanReply);
