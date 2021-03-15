@@ -1,0 +1,184 @@
+== Documentation for an ACUMOS PDDL Action Planner component.
+Félix Ingrand <felix@laas.fr>
+
+:imagesdir: fig
+
+This project contains an ACUMOS component which, acting as a gRPC server, is able to call a number of PDDL action planners (`ff`, `popf` and
+`optic` for now).
+
+If you want to run the server locally, each of these planners needs to be installed separately and have to be available in your
+PATH. Otherwise, you can use the Dockerize version (see <<Docker_version>> on this page), still you will need the client.
+
+The supported planners for now are:
+
+- `ff` is pretty straighforward to install https://fai.cs.uni-saarland.de/hoffmann/ff.html[FF homepage]
+- `popf`, I would not know, I grabbed the binary from the ROSPlan distribution (bad bad...), but here is the
+  https://nms.kcl.ac.uk/planning/software/popf.html[POPF homepage] 
+- `optic` is a pain to install... Check https://nms.kcl.ac.uk/planning/software/optic.html[OPTIC homepage], you may find the proper binary
+  for you... 
+
+
+NOTE: If you have installed `optic`, the binary should be named `optic-clp` (I do not have a `cplex` license) 
+
+=== Install 
+
+First clone this package
+
+----
+git clone git://redmine.laas.fr/laas/users/felix/acumos-planners.git
+----
+
+The prerequisites to install this component are the usual developper one. `gcc, make, pkg-config, etc`. If you want to use the docker version, you
+will have to install `docker` too.
+
+Moreover, make sure you have ProtoBuf and gRPC installed first, or the make will fail. In fact the `Makefile` checks their presence with `pkg-config`
+
+
+WARNING: Beware of inconsistent ProtoBuf/gRPC versions. I strongly advise you to install gRPC following the instruction
+on: https://grpc.io/docs/languages/cpp/quickstart/ This will install gRPC *and* ProtoBuf, minimizing the risk of version
+inconsistency.
+
+=== Compile
+
+----
+cd acumos-planners
+make
+----
+
+This will create two executables in the same directory:
+
+- `planner_ACUMOS_bridge` is a gRPC server listening on port 8061 providing the services described below in the ProtoBuf
+  file (to be able to call 3 different planners for now). 
+- `planner_client` is just an example of a client requesting a plan from the gRPC server. Of course, in a regular setup,
+  that would be another ACUMOS component or the `orchestrator`. A python version of the client is available in the `python_client` sub
+  directory. Of course, it requires the installation of the https://grpc.io/docs/languages/python/quickstart/[gRPC python version].
+
+Again, if you want to run the `planner_ACUMOS_bridge` locally, check that you have `ff`, `popf` and `optic-clp` installed in your path. Just
+call them one by one should suffice. Otherwise, you can also start the <<Docker_version>>, which contains them all.
+
+=== Run
+
+==== The server
+
+Open a terminal and either launch the gRPC planner bridge:
+
+----
+./planner_ACUMOS_bridge
+----
+
+or, use the  <<Docker_version>>
+
+----
+docker run -d -p 8061:8061 felixfi/pddl-planners
+----
+
+NOTE: To see the "output" of your docker, use `docker logs` or remove the `-d` 
+
+[[client]]
+==== The client
+
+In another terminal, you can launch the client with the following syntax:
+
+`./planner_client <popf|optic|ff> domain_file problem_file "argument"`
+
+NOTE: the `"argument"` is optional and is passed to the planner (so it depends of the planner used) and should be given in ONE
+string. (e.g. if you want to pass the arguments `-a -c efg -X` to the planner, use:  `"-a -c efg -X"`) 
+
+NOTE: that the client does not care if the server is running locally, as a standalone program, or running inside the container you may have launched.
+
+Here are some examples from the `examples` subdirectory which should work.
+----
+./planner_client popf examples/domain_turtlebot.pddl examples/problem_turtlebot.pddl
+./planner_client ff examples/dom3.pddl  examples/pb3a.pddl
+./planner_client optic  examples/dom3d.pddl  examples/pb3a.pddl "-N"
+----
+
+The `"-N"` argument is most welcome when calling `optic` as it may use a lof of CPU before deciding it cannot improve the solution anymore.
+
+=== The ProtoBuf definition
+
+Here is the content of the ProtoBuf file `PDDL-planner.proto`, nothing too fancy, mostly strings for now.
+----
+syntax = "proto3";
+
+package AIPlanner;
+a
+// The Planner service definition.
+service Planner {		//we can have more than one planner available
+  rpc planner_ff (PlanRequest)e returns (PlanReply);
+  rpc planner_optic (PlanRequest) returns (PlanReply);
+  rpc planner_popf (PlanRequest) returns (PlanReply);
+}
+
+// The request message containing three strings, the domain, the problem and the parameters
+message PlanRequest {
+  string domain = 1; 		// planing domain in PDDL
+  string problem = 2;		// planning problem in PDDL
+  string parameters = 3;	// parameter added to the commande line
+}
+
+// The response message containing the plan (if suceess is true)
+message PlanReply {
+  bool success = 1;
+  string plan = 2;
+}
+----
+
+As you can see, pretty straightforward.
+
+[[Docker_version]]
+=== Docker version 
+
+Now we make a Docker out of this setup. Here is the `Dockerfile` I use. We have to install `coinor-libcbc-dev` for `optic-clp` to run
+properly. We copy the various planners from the local `bin` directory, as well as the `planner_ACUMOS_bridge`. We expose port `8061` to allow
+ACUMOS to talk to our component.
+
+----
+FROM ubuntu:18.04
+
+LABEL maintainer="felix@laas.fr"
+
+RUN set -eux; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends coinor-libcbc-dev
+
+COPY bin/popf /usr/local/bin
+COPY bin/ff /usr/local/bin
+COPY bin/optic-clp /usr/local/bin
+COPY bin/planner_ACUMOS_bridge /usr/local/bin
+
+EXPOSE 8061
+
+ENTRYPOINT ["planner_ACUMOS_bridge"]
+----
+
+The container is now available on https://hub.docker.com/repository/docker/felixfi/pddl-planners[dockerhub], so you will just have to to run it with:
+
+----
+docker run -d -p 8061:8061 felixfi/pddl-planners
+----
+
+then you can call again the <<client,client>>, with something like:
+
+----
+./planner_client ff examples/dom3.pddl examples/pb3a.pddl
+----
+
+and you should get the result computed by the dockerized `planner_ACUMOS_bridge` and `ff` in this particular case.
+
+=== ACUMOS
+
+The container and the ProtoBuff have been upload to ACUMOS and are in a "model" named `pddl-planners-ffi`. If you want to use it in an
+hybrid pipeline, let me know.
+
+=== Next
+
+- Find some partners who want an action planner in their hybrid pipeline.
+- want more planners? metric-ff, conforment-ff, etc?
+- Improve the returned status (success, timeout, error,?) ACUMOS does not support enum for now...
+- more parsing of the returned format (for now, we just get the stdout).
+
+
+=== Comments, bugs and suggestions are welcome!
+
+Enjoy!
