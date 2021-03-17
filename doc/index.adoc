@@ -27,10 +27,16 @@ binary (actually a python script) looked for is `fast-downward.py`.
 
 === Install 
 
-First clone this package
+First clone this package from:
 
 ----
 git clone git://redmine.laas.fr/laas/users/felix/acumos-planners.git
+----
+
+or from github:
+
+----
+git clone git@github.com:aiplan4eu/acumos-planners.git
 ----
 
 The prerequisites to install this component are the usual developper one. `gcc, make, pkg-config, etc`. If you want to use the docker version, you
