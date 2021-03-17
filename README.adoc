@@ -3,22 +3,27 @@ Félix Ingrand <felix@laas.fr>
 
 :imagesdir: fig
 
-This project contains an ACUMOS component which, acting as a gRPC server, is able to call a number of PDDL action planners (`ff`, `popf` and
-`optic` for now).
+This project contains an ACUMOS component which, acting as a gRPC server, is able to call a number of PDDL action planners (`ff`, `fd`,
+`popf` and `optic` for now).
+
+This is more a proof of concept on how to integrate PDDL Planner within a docker made available for ACUMOS Hybrid Pipelines.
 
 If you want to run the server locally, each of these planners needs to be installed separately and have to be available in your
-PATH. Otherwise, you can use the Dockerize version (see <<Docker_version>> on this page), still you will need the client.
+PATH. Otherwise, you can use the Dockerize version (see <<Docker_version>> on this page which contains all of them), still you will need the
+client.
 
 The supported planners for now are:
 
 - `ff` is pretty straighforward to install https://fai.cs.uni-saarland.de/hoffmann/ff.html[FF homepage]
+- `fd` fast downward is easy to install too http://www.fast-downward.org/HomePage[Fast Downward homepage]
 - `popf`, I would not know, I grabbed the binary from the ROSPlan distribution (bad bad...), but here is the
-  https://nms.kcl.ac.uk/planning/software/popf.html[POPF homepage] 
-- `optic` is a pain to install... Check https://nms.kcl.ac.uk/planning/software/optic.html[OPTIC homepage], you may find the proper binary
-  for you... 
+  https://nms.kcl.ac.uk/planning/software/popf.html[POPF homepage]
+- `optic` is a pain to install, the Cmake files are broken... Check https://nms.kcl.ac.uk/planning/software/optic.html[OPTIC homepage], you
+  may find the proper binary for you...
 
 
-NOTE: If you have installed `optic`, the binary should be named `optic-clp` (I do not have a `cplex` license) 
+NOTE: If you have installed `optic`, the binary should be named `optic-clp` (I do not have a `cplex` license). As for Fast Downward, the
+binary (actually a python script) looked for is `fast-downward.py`.
 
 === Install 
 
@@ -54,12 +59,12 @@ make
 This will create two executables in the same directory:
 
 - `planner_ACUMOS_bridge` is a gRPC server listening on port 8061 providing the services described below in the ProtoBuf
-  file (to be able to call 3 different planners for now). 
+  file (to be able to call the different planners for now). 
 - `planner_client` is just an example of a client requesting a plan from the gRPC server. Of course, in a regular setup,
   that would be another ACUMOS component or the `orchestrator`. A python version of the client is available in the `python_client` sub
   directory (thanks to Uwe Köckemann). Of course, it requires the installation of the https://grpc.io/docs/languages/python/quickstart/[gRPC python version].
 
-Again, if you want to run the `planner_ACUMOS_bridge` locally, check that you have `ff`, `popf` and `optic-clp` installed in your path. Just
+Again, if you want to run the `planner_ACUMOS_bridge` locally, check that you have `ff`, `fast-downward.py`, `popf` and `optic-clp` installed in your path. Just
 call them one by one should suffice. Otherwise, you can also start the <<Docker_version>>, which contains them all.
 
 === Run
@@ -85,7 +90,7 @@ NOTE: To see the "output" of your docker, use `docker logs` or remove the `-d`
 
 In another terminal, you can launch the client with the following syntax:
 
-`./planner_client <popf|optic|ff> domain_file problem_file "argument"`
+`./planner_client <popf|optic|ff|fd> domain_file problem_file "argument"`
 
 NOTE: the `"argument"` is optional and is passed to the planner (so it depends of the planner used) and should be given in ONE
 string. (e.g. if you want to pass the arguments `-a -c efg -X` to the planner, use:  `"-a -c efg -X"`) 
@@ -96,6 +101,7 @@ Here are some examples from the `examples` subdirectory which should work.
 ----
 ./planner_client popf examples/domain_turtlebot.pddl examples/problem_turtlebot.pddl
 ./planner_client ff examples/dom3.pddl  examples/pb3a.pddl
+./planner_client fd examples/philosophers/domain.pddl examples/philosophers/p01-phil2.pddl "--alias lama-first"
 ./planner_client optic  examples/dom3d.pddl  examples/pb3a.pddl "-N"
 ----
 
@@ -113,6 +119,7 @@ package AIPlanner;
 service Planner {		//we can have more than one planner available
   rpc planner_ff (PlanRequest)e returns (PlanReply);
   rpc planner_optic (PlanRequest) returns (PlanReply);
+  rpc planner_fd (PlanRequest) returns (PlanReply);
   rpc planner_popf (PlanRequest) returns (PlanReply);
 }
 
@@ -135,14 +142,18 @@ As you can see, pretty straightforward.
 [[Docker_version]]
 === Docker version 
 
-Now we make a Docker out of this setup. Here is the `Dockerfile` I use. We have to install `coinor-libcbc-dev` for `optic-clp` to run
-properly. We copy the various planners from the local `bin` directory, as well as the `planner_ACUMOS_bridge`. We expose port `8061` to allow
-ACUMOS to talk to our component.
+Now we make a Docker out of this setup. Here is the `Dockerfile` I use. We start from  the `fast-downward` container
+`aibasel/downward:latest`. Then we have to install `coinor-libcbc-dev` for `optic-clp` to run properly. We copy the various planners from
+the local `bin` directory, as well as the `planner_ACUMOS_bridge`. We expose port `8061` to allow ACUMOS to talk to our component.
 
 ----
-FROM ubuntu:18.04
+# We start from the fd docker image
+
+FROM aibasel/downward:latest
 
 LABEL maintainer="felix@laas.fr"
+
+# adding the other planner and the grpc server.
 
 RUN set -eux; \
 	apt-get update; \
@@ -153,6 +164,10 @@ COPY bin/ff /usr/local/bin
 COPY bin/optic-clp /usr/local/bin
 COPY bin/planner_ACUMOS_bridge /usr/local/bin
 
+# add the path to fast_downward.py so our bridge will find the planner.
+ENV PATH=/workspace/downward/:$PATH
+
+#expose the grpc ACUMOS port
 EXPOSE 8061
 
 ENTRYPOINT ["planner_ACUMOS_bridge"]
@@ -170,12 +185,20 @@ then you can call again the <<client,client>>, with something like:
 ./planner_client ff examples/dom3.pddl examples/pb3a.pddl
 ----
 
-and you should get the result computed by the dockerized `planner_ACUMOS_bridge` and `ff` in this particular case.
+and you should get the result computed by the dockerized `planner_ACUMOS_bridge` and `ff` in this particular case. But all the
+`planner_client` above should work without any problem.
 
 === ACUMOS
 
 The container and the ProtoBuff have been upload to ACUMOS and are in a "model" named `pddl-planners-ffi`. If you want to use it in an
 hybrid pipeline, let me know.
+
+=== Disclaimer
+
+The current interface is pretty rough... and I cannot guarantee that the various planners will work exactly as they would if they were
+called standalone. Foe example, both domain and problem are passed as a string (from the client to the server through ProtoBuf) and are then written in files by the
+server side, before calling the planner. Some planner can have quite complex argument/file call which are probably not coverred by this
+simple scheme.
 
 === Next
 

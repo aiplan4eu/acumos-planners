@@ -196,6 +196,59 @@ class PlannerServiceImpl final : public Planner::Service {
     return Status::OK;
   }
 
+  Status planner_fd(ServerContext* context, const PlanRequest* request,
+                  PlanReply* reply) override {
+
+    std::cout << "gRPC server got: " <<  request->domain() << " and " << request->problem() << " and " << request->parameters() << std::endl;
+
+    std::ofstream out_domain("/tmp/domain");
+    out_domain << request->domain();
+    out_domain.close();
+
+    
+    std::ofstream out_fact("/tmp/problem");
+    out_fact << request->problem();
+    out_fact.close();
+
+    char *command_fmt = (char *)"fast-downward.py %s --plan-file /tmp/solution /tmp/domain /tmp/problem";
+
+    char *command;
+
+    int ret = asprintf(&command, command_fmt, request->parameters().c_str());
+        
+    if (ret == -1) {
+      std::cout << "Cannot build command for the planner. " << std::endl;
+      return Status::CANCELLED;
+    }
+
+    std::cout << "Calling: "<< command << std::endl;
+    
+    ret = system(command);
+    
+    free(command);
+
+    if ( !ret ) {
+      reply->set_success(true);
+      
+      std::ifstream plan_res("/tmp/solution");
+      std::string plan_string((std::istreambuf_iterator<char>(plan_res)),
+			      std::istreambuf_iterator<char>());
+      plan_res.close();
+
+      std::remove("/tmp/domain");
+      std::remove("/tmp/problem");
+      std::remove("/tmp/solution");
+      
+      reply->set_plan(plan_string);
+      
+    } else {
+      reply->set_success(false);
+      reply->set_plan("no plan");
+      
+    }
+    return Status::OK;
+  }
+
 };
 
 int main(int argc, char** argv) {

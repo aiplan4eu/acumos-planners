@@ -31,6 +31,8 @@ with grpc.insecure_channel('localhost:%d' % (grpcport)) as channel:
     # Execute request
     if planner == "ff":
         answer = stub.planner_ff(req) 
+    elif planner == "fd":
+        answer = stub.planner_fd(req) 
     elif planner == "optic":
         answer = stub.planner_optic(req) 
     elif planner == "popf":

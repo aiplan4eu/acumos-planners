@@ -20,6 +20,7 @@ package AIPlanner;
 // The Planner service definition.
 service Planner {		//we can have more than one planner available
   rpc planner_ff (PlanRequest) returns (PlanReply);
+  rpc planner_fd (PlanRequest) returns (PlanReply);
   rpc planner_optic (PlanRequest) returns (PlanReply);
   rpc planner_popf (PlanRequest) returns (PlanReply);
 }
