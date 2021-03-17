@@ -129,6 +129,35 @@ public:
       return "No plan";
     }
   }
+  std::string planner_fd(std::string dom, std::string prob, std::string par) {
+    // Data we are sending to the server.
+    PlanRequest request;
+    request.set_domain(dom);
+    request.set_problem(prob);
+    request.set_parameters(par);
+
+    // Container for the data we expect from the server.
+    PlanReply reply;
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+
+    // The actual RPC.
+    Status status = stub_->planner_fd(&context, request, &reply);
+
+    // Act upon its status.
+    if (status.ok()) {
+      if (reply.success()) 
+	return reply.plan();
+      else
+	return "No plan";
+    } else {
+      std::cerr << "Error: " << status.error_code() << ": " << status.error_message()
+                << std::endl;
+      return "No plan";
+    }
+  }
 
  private:
   std::unique_ptr<Planner::Stub> stub_;
@@ -147,7 +176,7 @@ int main(int argc, char** argv) {
       target_str, grpc::InsecureChannelCredentials()));
 
   if (argc < 4) {
-    std::cout << "We need which planner ff, optic or popf, and 3 filenames as arguments, domain, problem and parameters" << std::endl;
+    std::cout << "We need which planner ff, optic, fd or popf, and 3 filenames as arguments, domain, problem and parameters" << std::endl;
     return 1;
   }
   
@@ -167,12 +196,14 @@ int main(int argc, char** argv) {
   
   if (!strcmp(argv[1],"ff")) {
     res = planner.planner_ff(domain, problem, parameters);
+   } else if (!strcmp(argv[1],"fd")) {
+    res = planner.planner_fd(domain, problem, parameters);
    } else if (!strcmp(argv[1],"popf")) {
     res = planner.planner_popf(domain, problem, parameters);
   } else if (!strcmp(argv[1],"optic")) {  
     res = planner.planner_optic(domain, problem, parameters);
   } else {
-    std::cout << "You need to specify as first argument which planner to call: ff, optic or popf." << std::endl;
+    std::cout << "You need to specify as first argument which planner to call: ff, fd, optic or popf." << std::endl;
     return 1;
   }
    std::cout << "Plan received: " << res << std::endl;
