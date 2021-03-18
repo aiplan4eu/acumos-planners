@@ -15,10 +15,10 @@ COPY bin/ff /usr/local/bin
 COPY bin/optic-clp /usr/local/bin
 COPY bin/planner_ACUMOS_bridge /usr/local/bin
 
-# add the fast_downward path so our bridge will find the planner.
+# add the path to fast_downward.py so our gRPC bridge will find the planner.
 ENV PATH=/workspace/downward/:$PATH
 
-#expose the grpc ACUMOS port
+#expose the gRPC ACUMOS port
 EXPOSE 8061
 
 ENTRYPOINT ["planner_ACUMOS_bridge"]

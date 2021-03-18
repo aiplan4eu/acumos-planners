@@ -195,10 +195,12 @@ hybrid pipeline, let me know.
 
 === Disclaimer
 
+
 The current interface is pretty rough... and I cannot guarantee that the various planners will work exactly as they would if they were
-called standalone. Foe example, both domain and problem are passed as a string (from the client to the server through ProtoBuf) and are then written in files by the
-server side, before calling the planner. Some planner can have quite complex argument/file call which are probably not coverred by this
-simple scheme.
+called standalone. For example, both domain and problem are passed as a string (from the client to the server through ProtoBuf) and are then
+written in files by the server side, before calling the planner. Some planner can have quite complex argument/file call which are probably
+not coverred by this simple scheme. Keep in mind that the way we use the docker containers here, the planners do not have access to your
+file system, they get the domaina nd the problem through the gRPC /ProtoBuf interface.
 
 === Next
 
