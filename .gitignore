@@ -9,4 +9,8 @@ planner_ROSPlan_bridge
 ._*
 .DS_Store
 planner_ACUMOS_bridge
+python_client/PDDL_planner_pb2.py
+python_client/PDDL_planner_pb2_grpc.py
+python_client/__pycache__/
+
 
