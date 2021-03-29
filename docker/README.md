@@ -53,7 +53,7 @@ Python code:
 
     cd src/acumos-planners
 
-    python3 planner_client popf ../examples/domain_turtlebot.pddl ../examples/problem_turtlebot.pddl
+    python3 planner_client.py popf ../examples/domain_turtlebot.pddl ../examples/problem_turtlebot.pddl
 
     ...
 
